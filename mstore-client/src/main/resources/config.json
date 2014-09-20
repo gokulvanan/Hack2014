@@ -1,0 +1,9 @@
+{
+	"coordinator" : "http://localhost:9000/coordinator",
+	"stores":[
+		"localhost:2181:/hbase-unsecure",
+		"localhost:2181:/hbase-unsecure"
+	]
+}
+
+	
