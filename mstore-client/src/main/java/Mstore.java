@@ -36,7 +36,8 @@ public class Mstore {
 		this.mode = mode;
 	}
 	//initializes  both Coordinator and zookeeper 
-	public static void init(MConfig conf){
+	public static void init(MConfig conf) throws ClassNotFoundException{
+		Class.forName("org.apache.phoenix.jdbc.PhoenixDriver");
 		//init httpconn
 		coordinator = new Coordinator(conf.coordinator);
 		config = conf;

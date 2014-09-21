@@ -1,9 +1,10 @@
 
 
-import org.codehaus.jackson.JsonNode;
+
+import com.google.gson.JsonElement;
 
 public class Response {
 
 	public String status;
-	public JsonNode data;
+	public JsonElement data;
 }

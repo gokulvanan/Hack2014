@@ -1,9 +1,7 @@
-import java.io.File;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.codehaus.jackson.map.ObjectMapper;
 
 
 public class Execute {
@@ -23,7 +21,7 @@ public class Execute {
 
 	public  static void setup(){
 		try {
-			config = new ObjectMapper().readValue(new File("src/main/resources/config.json"), MConfig.class);
+//			config = new ObjectMapper().readValue(new File("src/main/resources/config.json"), MConfig.class);
 			Mstore.init(config);
 		} catch (Exception e) {
 			e.printStackTrace();

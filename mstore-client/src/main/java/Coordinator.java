@@ -10,12 +10,11 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.node.ObjectNode;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 public class Coordinator {
 
-	private static final ObjectMapper parser = new ObjectMapper();
 
 	private String baseurl;
 	public Coordinator(String url) {
@@ -38,9 +37,9 @@ public class Coordinator {
 			result.append(line);
 		}
 		System.out.println(result);
-		Response resp = parser.readValue(result.toString(), Response.class);
+		Response resp = new Gson().fromJson(result.toString(), Response.class);
 		if(resp.status == "success"){
-			return resp.data.asLong();
+			return resp.data.getAsLong();
 		}else{
 			throw new RuntimeException("Couldnt fech log position");
 		}
@@ -51,9 +50,9 @@ public class Coordinator {
 		HttpClient client = HttpClientBuilder.create().build();
 		HttpPost request = new HttpPost(baseurl+"/updateLogPosition");
 		request.setHeader("Content-Type","application/json");
-		ObjectNode node = new ObjectNode(parser.getNodeFactory());
-		node.put("id", count);
-		node.put("query", query);
+		JsonObject node = new JsonObject();
+		node.add("id", new Gson().toJsonTree(node));
+		node.add("query", new Gson().toJsonTree(query));
 		request.setEntity(new ByteArrayEntity(node.toString().getBytes()));
 		HttpResponse response = client.execute(request);
 
@@ -66,9 +65,9 @@ public class Coordinator {
 			result.append(line);
 		}
 		System.out.println(result);
-		Response resp = parser.readValue(result.toString(), Response.class);
+		Response resp = new Gson().fromJson(result.toString(), Response.class);
 		if(resp.status == "success"){
-			return resp.data.asText();
+			return resp.data.getAsString();
 		}else{
 			throw new RuntimeException("Couldnt fech log position");
 		}
