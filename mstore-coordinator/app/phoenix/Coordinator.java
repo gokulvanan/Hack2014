@@ -1,5 +1,8 @@
 package phoenix;
 import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,11 +18,11 @@ public class Coordinator {
 	//private Statement logStmt;
 	private String m_getCurPos="SELECT max(LOGNUMBER) FROM LOG";
 
-	public Coordinator(String ip1,String ip2) throws ClassNotFoundException,SQLException
+	public Coordinator() throws ClassNotFoundException,SQLException
 	{
-		m_peers=new String[2];
-		m_peers[0]=ip1;
-		m_peers[1]=ip1;
+//		m_peers=new String[2];
+//		m_peers[0]=ip1;
+//		m_peers[1]=ip1;
       	try{
         	Class.forName("org.apache.phoenix.jdbc.PhoenixDriver");
 			m_dbCon =  DriverManager.getConnection("jdbc:phoenix:localhost:2181:/hbase-unsecure");
@@ -102,6 +105,29 @@ public class Coordinator {
 		}
 		return retVal;
 	}
+	/**
+     *putMyLogPos
+     */
+	public boolean putInMyLogPos(int logPos,String sqlStr)
+	{
+		String ins="upsert into log(lognumber,sqlstr,status) values("+logPos+",'"+sqlStr+"','pendingvalidation')";
+		System.out.println(ins);
+		int n=-1;
+		try
+		{
+			Statement logStmt=m_dbCon.createStatement();
+			n=logStmt.executeUpdate(ins);
+			m_dbCon.commit();
+		}catch(Exception ex)
+		{
+			System.out.println("Exception"+ex.getMessage());
+		}
+		if(n>0)
+		{
+			return true;
+		}
+		return false;
+	}
 
 	/**
      *Invoked by client to validate the log position.
@@ -153,11 +179,19 @@ public class Coordinator {
     {
 		try
 		{
-			Coordinator coord=new Coordinator("ip1","ip2");
+			Coordinator coord=new Coordinator();
 			int curLogPos=coord.GetMyCurrentLogPos();
 			System.out.println("Current Log Pos="+curLogPos);
 			int nextLogPos=coord.GetMyNextLogPos();
 			System.out.println("Next Log Pos="+nextLogPos);
+			boolean ret=coord.putInMyLogPos(nextLogPos,"create table t2(c1 tinyint, constraint pk primary key (c1))");
+			if(ret)
+			{
+				System.out.println("Inserted into t1");
+			}else
+			{
+				System.out.println("Unable to insert into t1");
+			}
 			System.out.println("Current Log Pos after next="+coord.GetMyCurrentLogPos());
 			System.out.println("Str at pos 1="+coord.GetMyLogString(1));
 		}catch(Exception ex)

@@ -48,7 +48,7 @@ public class Coordinator {
 
 	public  String updateLog(Long count, String query) throws IOException {
 		HttpClient client = HttpClientBuilder.create().build();
-		HttpPost request = new HttpPost(baseurl+"/putLog");
+		HttpPost request = new HttpPost(baseurl+"/putAllLog");
 		request.setHeader("Content-Type","application/json");
 		LogMessage msg  = new LogMessage();
 		msg.id= count;

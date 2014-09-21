@@ -7,8 +7,10 @@ GET     /getGlobalNextLog                                       Application.getG
 GET		/getGlobalHighestLog									Application.getGlobalHighestLog
 GET		/getNextLog										  Application.getNextLog
 GET		/getHighestLog										  Application.getHighestLog
+POST	/putAllLog										  Application.putAllLog
 POST	/putLog										  Application.putLog
-
+POST	/validateLog										  Application.validateLog
+POST	/validateAllLog										  Application.validateAllLog
 
 # Ignore favicon requests
 GET     /favicon.ico                            404
