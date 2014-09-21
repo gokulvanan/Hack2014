@@ -8,6 +8,7 @@ import org.testng.annotations.Test;
 
 
 
+@Test
 public class BasicTest {
 
 	private MConfig config;
