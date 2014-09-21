@@ -1,0 +1,21 @@
+Listening for transport dt_socket at address: 58759
+11:22:29,211 INFO  ~ Starting /Users/gokulvanan/Git/Hack2014/mstore-coordinator
+11:22:29,957 WARN  ~ You're running Play! in DEV mode
+11:22:30,067 INFO  ~ Listening for HTTP on port 9001 (Waiting a first request to start) ...
+11:24:38,017 ERROR ~ 
+
+@6jicjk252
+Internal Server Error (500) for request GET /
+
+Compilation error (In /app/controllers/Application.java around line 52)
+The file /app/controllers/Application.java could not be compiled. Error raised is : Syntax error on token "&lt;", ? expected after this token
+
+play.exceptions.CompilationException: Syntax error on token "<", ? expected after this token
+	at play.classloading.ApplicationCompiler$2.acceptResult(ApplicationCompiler.java:246)
+	at org.eclipse.jdt.internal.compiler.Compiler.compile(Compiler.java:474)
+	at play.classloading.ApplicationCompiler.compile(ApplicationCompiler.java:278)
+	at play.classloading.ApplicationClassloader.getAllClasses(ApplicationClassloader.java:412)
+	at play.Play.start(Play.java:485)
+	at play.Play.detectChanges(Play.java:599)
+	at play.Invoker$Invocation.init(Invoker.java:186)
+	at Invocation.HTTP Request(Play!)

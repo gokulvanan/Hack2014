@@ -1,5 +1,3 @@
-package phoenix;
-
 import java.sql.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -30,7 +28,7 @@ public class Coordinator {
 			//logStmt=m_dbCon.createStatement();
         	System.out.println("Got Connection!");
         	System.out.println(m_dbCon);
-
+			
 		}catch (Exception ex)
 		{
 			System.out.println("Exception"+ex.getMessage());
@@ -60,7 +58,7 @@ public class Coordinator {
 	}
 
 	/**
- 	 *Return the sqlstring given the log position.  This should be exposed as a webservice and
+ 	 *Return the sqlstring given the log position.  This should be exposed as a webservice and 
 	 *called by other coordinator
  	 */
 	public String GetMyLogString(int pos)
@@ -116,7 +114,7 @@ public class Coordinator {
 		int n=-1;
 		if(curLogPos<logPos)
 		{
-			return false;
+			return false;	
 		}
 		String ins="upsert into log(lognumber,status) values("+logPos+",'validated')";
 		try
@@ -171,3 +169,4 @@ public class Coordinator {
 		}
 	}
 }
+

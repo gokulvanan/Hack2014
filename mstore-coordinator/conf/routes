@@ -3,8 +3,12 @@
 # ~~~~
 
 # Home page
-GET     /getNextLog                                       Application.getNextLog
-POST	/updateLog										  Application.updateLog
+GET     /getGlobalNextLog                                       Application.getGlobalNextLog
+GET		/getGlobalHighestLog									Application.getGlobalHighestLog
+GET	/getNextLog										  Application.getNextLog
+GET	/getHighestLog										  Application.getHighestLog
+POST	/putLog										  Application.putLog
+
 
 # Ignore favicon requests
 GET     /favicon.ico                            404

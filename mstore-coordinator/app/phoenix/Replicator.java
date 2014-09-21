@@ -1,5 +1,7 @@
-package phoenix;
 import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,15 +25,15 @@ public class Replicator {
 		m_peers=new String[2];
 		m_peers[0]=ip1;
 		m_peers[1]=ip1;
-		try{
-			Class.forName("org.apache.phoenix.jdbc.PhoenixDriver");
+      	try{
+        	Class.forName("org.apache.phoenix.jdbc.PhoenixDriver");
 			m_dbCon =  DriverManager.getConnection("jdbc:phoenix:localhost:2181:/hbase-unsecure");
 			//logStmt=m_dbCon.createStatement();
-			System.out.println("Got Connection!");
-			System.out.println(m_dbCon);
+        	System.out.println("Got Connection!");
+        	System.out.println(m_dbCon);
 			m_LogApplierService= Executors.newSingleThreadExecutor();
 			m_LogApplierService.execute(new Runnable() {
-				public void run()
+    			public void run() 
 				{
 					//Find out last resolved log number and query the next one after that
 					//The lifecycle of stats string is 'invalid', Not applicable for mutation
@@ -39,51 +41,57 @@ public class Replicator {
 					//'pendingvalidation': Pendingfor validation
 					//'validated', validated
 					//'applied', mutations applied
-
-					try{
-						while(true)
+					
+					while(true)
+					{
+					try {
+						String lastApplied="select max(lognumber) from log where sqlstring!='null' and status='applied'";
+						Statement logStmt=m_dbCon.createStatement();
+						ResultSet rs=logStmt.executeQuery(lastApplied);
+						int nextLogPos=-1;
+						System.out.println("Finding max() applied position");
+						while(rs.next())
 						{
-							String lastApplied="select max(lognumber) from log where sqlstring!='null' and status='applied'";
-							Statement logStmt=m_dbCon.createStatement();
-							ResultSet rs=logStmt.executeQuery(lastApplied);
-							int nextLogPos=-1;
-							while(rs.next())
+							nextLogPos=rs.getInt(1);
+						}
+						System.out.println("max applied position is "+nextLogPos);
+					
+						if(nextLogPos>0)
+						{
+							String pending="select lognumber,sqlstring,status from log where lognumber>"+nextLogPos+" order by lognumber";
+							Statement pendingStmt=m_dbCon.createStatement();
+							System.out.println("Querying log for unapplied logs");
+							ResultSet rs1=pendingStmt.executeQuery(pending);
+							while(rs1.next())
 							{
-								nextLogPos=rs.getInt(1);
-							}
-							if(nextLogPos>0)
-							{
-								String pending="select lognumber,sqlstring,status from log where lognumber>"+nextLogPos+" order by lognumber";
-								Statement pendingStmt=m_dbCon.createStatement();
-								ResultSet rs1=pendingStmt.executeQuery(pending);
-								while(rs1.next())
+								int logNum=rs1.getInt("lognumber");
+								//Apply mutations only if the sequence of logs have been validated
+								if(rs1.getString("status").compareToIgnoreCase("validated")==0)
 								{
-									int logNum=rs1.getInt("lognumber");
-									//Apply mutations only if the sequence of logs have been validated
-									if(rs1.getString("status").compareToIgnoreCase("validated")==0)
+									Statement mut=m_dbCon.createStatement();
+									String logSqlStr=rs1.getString("sqlstring");	
+									System.out.println("Applying mutation "+logNum+":"+logSqlStr);
+									int n=mut.executeUpdate(logSqlStr);
+									if(n>0)
 									{
-										Statement mut=m_dbCon.createStatement();
-										String logsqlstr=rs1.getString("sqlstring");
-										int n=mut.executeUpdate(logsqlstr);
-										if(n>0)
-										{
-											Statement pst=m_dbCon.createStatement();
-											int up=pst.executeUpdate("upsert log (status) values('validated') where lognumber="+logNum);
-											m_dbCon.commit();
-										}
-									}else
-									{
-										break;
+										System.out.println("Sucessfully applied mutation "+logNum+":"+logSqlStr);
+										Statement pst=m_dbCon.createStatement();
+										System.out.println("updating log status");
+										int up=pst.executeUpdate("upsert log (status) values('validated') where lognumber="+logNum);
+										m_dbCon.commit();
 									}
+								}else
+								{
+									break;
 								}
 							}
 						}
-					}catch(Exception e){
-						throw new RuntimeException(e);
+					}catch (Exception ex)
+					{
+						System.out.println("Exception"+ex.getMessage());
 					}
-					
-				
-				}
+					}
+    			}
 			});
 		}catch (Exception ex)
 		{
@@ -93,7 +101,7 @@ public class Replicator {
 	}
 
 	public static void main(String[] args)
-	{
+    {
 	}
 }
 
