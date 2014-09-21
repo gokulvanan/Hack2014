@@ -5,8 +5,8 @@
 # Home page
 GET     /getGlobalNextLog                                       Application.getGlobalNextLog
 GET		/getGlobalHighestLog									Application.getGlobalHighestLog
-GET	/getNextLog										  Application.getNextLog
-GET	/getHighestLog										  Application.getHighestLog
+GET		/getNextLog										  Application.getNextLog
+GET		/getHighestLog										  Application.getHighestLog
 POST	/putLog										  Application.putLog
 
 

@@ -23,7 +23,7 @@ public class Coordinator {
 
 	public Long getNextLogPosition() throws IOException {
 		HttpClient client = HttpClientBuilder.create().build();
-		HttpGet request = new HttpGet(baseurl+"/getNextLogPosition");
+		HttpGet request = new HttpGet(baseurl+"/getGlobalNextLog");
 
 		// add request header
 		HttpResponse response = client.execute(request);
@@ -38,8 +38,8 @@ public class Coordinator {
 		}
 		System.out.println(result);
 		Response resp = new Gson().fromJson(result.toString(), Response.class);
-		if(resp.status == "success"){
-			return resp.data.getAsLong();
+		if(resp.status.equals("success")){
+			return resp.data.getAsJsonObject().get("value").getAsLong();
 		}else{
 			throw new RuntimeException("Couldnt fech log position");
 		}
@@ -48,12 +48,12 @@ public class Coordinator {
 
 	public  String updateLog(Long count, String query) throws IOException {
 		HttpClient client = HttpClientBuilder.create().build();
-		HttpPost request = new HttpPost(baseurl+"/updateLogPosition");
+		HttpPost request = new HttpPost(baseurl+"/putLog");
 		request.setHeader("Content-Type","application/json");
-		JsonObject node = new JsonObject();
-		node.add("id", new Gson().toJsonTree(node));
-		node.add("query", new Gson().toJsonTree(query));
-		request.setEntity(new ByteArrayEntity(node.toString().getBytes()));
+		LogMessage msg  = new LogMessage();
+		msg.id= count;
+		msg.query = query;
+		request.setEntity(new ByteArrayEntity(new Gson().toJson(msg).getBytes()));
 		HttpResponse response = client.execute(request);
 
 		BufferedReader rd = new BufferedReader(
@@ -66,10 +66,10 @@ public class Coordinator {
 		}
 		System.out.println(result);
 		Response resp = new Gson().fromJson(result.toString(), Response.class);
-		if(resp.status == "success"){
-			return resp.data.getAsString();
+		if(resp.status.equals("success")){
+			return resp.data.getAsJsonObject().get("value").getAsString();
 		}else{
-			throw new RuntimeException("Couldnt fech log position");
+			throw new RuntimeException("Failed to udpate log position");
 		}
 	}
 

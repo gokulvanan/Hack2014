@@ -1,7 +1,5 @@
+package phoenix;
 import java.sql.*;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -96,7 +94,7 @@ public class Replicator {
 		}catch (Exception ex)
 		{
 			System.out.println("Exception"+ex.getMessage());
-			throw ex;
+			throw new RuntimeException(ex);
 		}
 	}
 

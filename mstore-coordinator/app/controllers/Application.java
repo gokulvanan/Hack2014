@@ -10,6 +10,7 @@ import play.mvc.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 
 import org.apache.commons.io.IOUtils;
@@ -88,17 +89,15 @@ public class Application extends Controller {
 		renderJSON(response);
 	}
 	
-	public static void putLog(){
-		Long id  = Long.parseLong(params.get("id"));
-		String query = params.get("query");
-		LogMessage logMsg =  new LogMessage();
-		logMsg.id = id;
-		logMsg.query = query;
+	public static void putLog() throws IOException{
+		List<String> lines =  IOUtils.readLines(request.body);
+		LogMessage logMsg  = new Gson().fromJson(lines.get(0),LogMessage.class);
+		String query = logMsg.query;
 		// Coordinator calls put log in all if majroity retrun success 
 		//else changes
 		Response response = new Response();
 		response.status="success";
-		response.data=(JsonObject) new Gson().toJsonTree(query);
+		response.data= new Gson().toJsonTree(query);
 		renderJSON(response);
 	}
 
